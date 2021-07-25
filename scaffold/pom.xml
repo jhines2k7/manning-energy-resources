@@ -38,6 +38,8 @@
     <scala.compat.version>2.12</scala.compat.version>
     <scala.version>2.12.6</scala.version>
     <spec2.version>4.2.0</spec2.version>
+
+    <lombok.version>1.16.20</lombok.version>
   </properties>
 
   <build>
@@ -230,6 +232,11 @@
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-streams-scala_${scala.compat.version}</artifactId>
       <version>${kafka.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
     </dependency>
 
     <!-- Databases drivers -->
