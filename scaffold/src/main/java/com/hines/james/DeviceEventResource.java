@@ -1,14 +1,23 @@
 package com.hines.james;
 
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Objects;
 
 @Path("/")
-public class DeviceEventController {
+public class DeviceEventResource {
+    private final KafkaProducer kafkaProducer;
+
+    public DeviceEventResource(KafkaProducer<String, DeviceEvent> kafkaProducer) {
+        this.kafkaProducer = kafkaProducer;
+    };
+
     @POST
     @Path("send/{uuid}")
     @Consumes({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
@@ -35,6 +44,21 @@ public class DeviceEventController {
             DeviceEvent deviceEvent = deviceEventBuilder.build();
 
             System.out.println("device event: " + deviceEvent);
+
+            String topic = "energy-kafka-device-events";
+
+            ProducerRecord<String, DeviceEvent> producerRecord = new ProducerRecord<>(topic, deviceEvent);
+
+            kafkaProducer.send(producerRecord, (recordMetadata, e) -> {
+                if(Objects.isNull(e)) {
+                    System.out.println("Success!");
+                    System.out.println(recordMetadata.toString());
+                } else {
+                    e.printStackTrace();
+                }
+            });
+
+            kafkaProducer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
