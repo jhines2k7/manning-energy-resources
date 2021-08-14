@@ -45,9 +45,9 @@ public class DeviceEventResource {
 
             System.out.println("device event: " + deviceEvent);
 
-            String topic = "energy-kafka-device-events";
+            String topic = "kafka-energy-events";
 
-            ProducerRecord<String, DeviceEvent> producerRecord = new ProducerRecord<>(topic, deviceEvent);
+            ProducerRecord<String, DeviceEvent> producerRecord = new ProducerRecord<>(topic, deviceEvent.getDeviceId().toString(), deviceEvent);
 
             kafkaProducer.send(producerRecord, (recordMetadata, e) -> {
                 if(Objects.isNull(e)) {

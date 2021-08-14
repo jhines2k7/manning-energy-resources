@@ -33,7 +33,9 @@ public class KafkaEnergyApplication extends Application<KafkaEnergyConfiguration
     }
 
     @Override
-    public void initialize(final Bootstrap<KafkaEnergyConfiguration> bootstrap){}
+    public void initialize(final Bootstrap<KafkaEnergyConfiguration> bootstrap){
+        bootstrap.addCommand(new KafkaStreamsCommand());
+    }
 
     @Override
     public void run(final KafkaEnergyConfiguration kafkaEnergyConfiguration,

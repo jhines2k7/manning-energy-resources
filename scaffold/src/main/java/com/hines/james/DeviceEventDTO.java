@@ -1,9 +1,7 @@
 package com.hines.james;
 
-import lombok.Data;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-@Data
 public class DeviceEventDTO {
     @JsonProperty("charging_source")
     private String chargingSource;
