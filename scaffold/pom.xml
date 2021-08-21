@@ -239,6 +239,11 @@
       <artifactId>kafka-streams-scala_${scala.compat.version}</artifactId>
       <version>${kafka.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.mitchseymour</groupId>
+      <artifactId>kafka-registryless-avro-serdes</artifactId>
+      <version>1.0.0</version>
+    </dependency>
 
     <!-- Databases drivers -->
     <!-- ****************** -->

@@ -45,7 +45,7 @@ public class DeviceEventResource {
 
             System.out.println("device event: " + deviceEvent);
 
-            String topic = "kafka-energy-events";
+            String topic = "kafka_energy_events_4";
 
             ProducerRecord<String, DeviceEvent> producerRecord = new ProducerRecord<>(topic, deviceEvent.getDeviceId().toString(), deviceEvent);
 
