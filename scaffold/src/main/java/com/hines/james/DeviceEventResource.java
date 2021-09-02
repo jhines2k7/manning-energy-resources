@@ -13,10 +13,12 @@ import java.util.Objects;
 @Path("/")
 public class DeviceEventResource {
     private final KafkaProducer kafkaProducer;
+    private final DeviceEventDao dao;
 
-    public DeviceEventResource(KafkaProducer<String, DeviceEvent> kafkaProducer) {
+    public DeviceEventResource(KafkaProducer<String, DeviceEvent> kafkaProducer, DeviceEventDao dao) {
         this.kafkaProducer = kafkaProducer;
-    };
+        this.dao = dao;
+    }
 
     @POST
     @Path("send/{uuid}")

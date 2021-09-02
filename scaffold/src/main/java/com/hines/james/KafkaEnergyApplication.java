@@ -4,16 +4,19 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
 import io.dropwizard.Application;
+import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.jdbi.v3.core.Jdbi;
 
 import java.util.Properties;
 
 public class KafkaEnergyApplication extends Application<KafkaEnergyConfiguration> {
     private static KafkaProducer<String, DeviceEvent> kafkaProducer;
+    private static KafkaEnergyApplication kafkaEnergyApplication;
 
     public static void main(final String[] args) throws Exception{
         Properties properties = new Properties();
@@ -27,7 +30,8 @@ public class KafkaEnergyApplication extends Application<KafkaEnergyConfiguration
 
         kafkaProducer = new KafkaProducer<>(properties);
 
-        new KafkaEnergyApplication().run(args);
+        kafkaEnergyApplication = new KafkaEnergyApplication();
+        kafkaEnergyApplication.run(args);
     }
 
     @Override
@@ -37,13 +41,16 @@ public class KafkaEnergyApplication extends Application<KafkaEnergyConfiguration
 
     @Override
     public void initialize(final Bootstrap<KafkaEnergyConfiguration> bootstrap){
-        bootstrap.addCommand(new KafkaStreamsCommand());
+        bootstrap.addCommand(new KafkaStreamsCommand(kafkaEnergyApplication));
     }
 
     @Override
     public void run(final KafkaEnergyConfiguration kafkaEnergyConfiguration,
                     final Environment environment) {
-        final DeviceEventResource deviceEventResource = new DeviceEventResource(kafkaProducer);
+        final JdbiFactory factory = new JdbiFactory();
+        final Jdbi jdbi = factory.build(environment, kafkaEnergyConfiguration.getDataSourceFactory(), "postgresql");
+        final DeviceEventDao dao = jdbi.onDemand(DeviceEventDao.class);
+        final DeviceEventResource deviceEventResource = new DeviceEventResource(kafkaProducer, dao);
 
         environment.jersey().register(deviceEventResource);
     }
