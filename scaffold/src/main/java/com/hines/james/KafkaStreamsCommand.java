@@ -60,9 +60,13 @@ public class KafkaStreamsCommand extends EnvironmentCommand<KafkaEnergyConfigura
                 builder.stream(sourceTopic, Consumed.with(new Serdes.StringSerde(), deviceEventSerde));
 
         deviceEventsSource
-                .mapValues(DeviceEvent::getCharging).peek((s, integer) -> {
-                    System.out.println("Device Key: " + s);
-                    System.out.println("Device Charging Value: " + integer);
+                .mapValues(DeviceEvent::getCharging).peek((key, charging) -> {
+                    System.out.println("Device Key: " + key);
+                    System.out.println("Device Charging Value: " + charging);
+
+                    System.out.println("Saving charging info to database");
+
+                    dao.addCharging("kafka_energy.device_events", key, charging);
                 }).to(sinkTopic, Produced.with(Serdes.String(), Serdes.Integer()));
 
         KafkaStreams energyKafkaStreamsApp = new KafkaStreams(builder.build(), properties);

@@ -10,8 +10,8 @@ import java.util.HashMap;
 public interface DeviceEventDao {
     @SqlQuery("SELECT id,charging FROM <table> WHERE id = :id")
     HashMap<String, String>
-    getChargeState(@Define("table") String table, @Bind("id") String id, @Bind("charging") String charging);
+    getChargeState(@Define("table") String table, @Bind("id") String id, @Bind("charging") int charging);
 
     @SqlUpdate("INSERT INTO <table> (id, charging) VALUES (:id, :charging)")
-    void addCharging(@Define("table") String table, @Bind("id") String id, @Bind("charging") String charging);
+    void addCharging(@Define("table") String table, @Bind("id") String id, @Bind("charging") int charging);
 }
