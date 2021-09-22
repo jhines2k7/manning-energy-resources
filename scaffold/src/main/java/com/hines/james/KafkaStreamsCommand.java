@@ -6,7 +6,9 @@ import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import io.dropwizard.Application;
 import io.dropwizard.Configuration;
 import io.dropwizard.cli.Command;
+import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.cli.EnvironmentCommand;
+import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
 import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -25,20 +27,29 @@ import org.jdbi.v3.core.Jdbi;
 
 import java.util.Properties;
 
-public class KafkaStreamsCommand extends EnvironmentCommand<KafkaEnergyConfiguration> {
+public class KafkaStreamsCommand extends ConfiguredCommand<KafkaEnergyConfiguration> {
     public KafkaStreamsCommand(Application application) {
-        super(application, "persist-events", "Saves device events to a database");
+        super( "persist-events", "Saves device events to a database");
     }
 
     @Override
     public void configure(Subparser subparser) {
-
+        addFileArgument(subparser);
     }
 
     @Override
-    protected void run(Environment environment, Namespace namespace, KafkaEnergyConfiguration kafkaEnergyConfiguration) throws Exception {
+    protected void run(Bootstrap<KafkaEnergyConfiguration> bootstrap, Namespace namespace, KafkaEnergyConfiguration kafkaEnergyConfiguration) throws Exception {
+        bootstrap.setConfigurationSourceProvider(new ResourceConfigurationSourceProvider());
+
+        final Environment environment = new Environment(bootstrap.getApplication().getName(),
+                bootstrap.getObjectMapper(),
+                bootstrap.getValidatorFactory().getValidator(),
+                bootstrap.getMetricRegistry(),
+                bootstrap.getClassLoader(),
+                bootstrap.getHealthCheckRegistry());
+
         final JdbiFactory factory = new JdbiFactory();
-        final Jdbi jdbi = factory.build(environment, kafkaEnergyConfiguration.getDataSourceFactory(), "postgresql");
+        final Jdbi jdbi = factory.build(environment, kafkaEnergyConfiguration.getDatabaseConfig(), "postgresql");
         final DeviceEventDao dao = jdbi.onDemand(DeviceEventDao.class);
 
         Properties properties = new Properties();
@@ -66,7 +77,7 @@ public class KafkaStreamsCommand extends EnvironmentCommand<KafkaEnergyConfigura
 
                     System.out.println("Saving charging info to database");
 
-                    dao.addCharging("kafka_energy.device_events", key, charging);
+                    dao.addCharging("device_events", key, charging);
                 }).to(sinkTopic, Produced.with(Serdes.String(), Serdes.Integer()));
 
         KafkaStreams energyKafkaStreamsApp = new KafkaStreams(builder.build(), properties);

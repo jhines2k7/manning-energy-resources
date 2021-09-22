@@ -4,6 +4,7 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
 import io.dropwizard.Application;
+import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
 import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -41,14 +42,17 @@ public class KafkaEnergyApplication extends Application<KafkaEnergyConfiguration
 
     @Override
     public void initialize(final Bootstrap<KafkaEnergyConfiguration> bootstrap){
+        bootstrap.setConfigurationSourceProvider(new ResourceConfigurationSourceProvider());
         bootstrap.addCommand(new KafkaStreamsCommand(kafkaEnergyApplication));
+
+        super.initialize(bootstrap);
     }
 
     @Override
     public void run(final KafkaEnergyConfiguration kafkaEnergyConfiguration,
                     final Environment environment) {
         final JdbiFactory factory = new JdbiFactory();
-        final Jdbi jdbi = factory.build(environment, kafkaEnergyConfiguration.getDataSourceFactory(), "postgresql");
+        final Jdbi jdbi = factory.build(environment, kafkaEnergyConfiguration.getDatabaseConfig(), "postgresql");
         final DeviceEventDao dao = jdbi.onDemand(DeviceEventDao.class);
         final DeviceEventResource deviceEventResource = new DeviceEventResource(kafkaProducer, dao);
 

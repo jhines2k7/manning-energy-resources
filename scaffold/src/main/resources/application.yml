@@ -1,4 +1,4 @@
-database:
+databaseConfig:
   driverClass: org.postgresql.Driver
   user: postgres
   password: secret
