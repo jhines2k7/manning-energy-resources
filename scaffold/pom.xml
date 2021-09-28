@@ -187,6 +187,11 @@
       <artifactId>dropwizard-jdbi3</artifactId>
       <version>${dropwizard.version}</version>
     </dependency>
+    <dependency>
+      <groupId>io.dropwizard</groupId>
+      <artifactId>dropwizard-hibernate</artifactId>
+      <version>${dropwizard.version}</version>
+    </dependency>
     <!-- For serving static web pages from your application -->
     <dependency>
       <groupId>io.dropwizard</groupId>

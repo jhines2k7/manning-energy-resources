@@ -1,7 +1,6 @@
 package com.hines.james;
 
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
-import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
@@ -53,7 +52,7 @@ public class KafkaEnergyApplication extends Application<KafkaEnergyConfiguration
                     final Environment environment) {
         final JdbiFactory factory = new JdbiFactory();
         final Jdbi jdbi = factory.build(environment, kafkaEnergyConfiguration.getDatabaseConfig(), "postgresql");
-        final DeviceEventDao dao = jdbi.onDemand(DeviceEventDao.class);
+        final DeviceDao dao = jdbi.onDemand(DeviceDao.class);
         final DeviceEventResource deviceEventResource = new DeviceEventResource(kafkaProducer, dao);
 
         environment.jersey().register(deviceEventResource);

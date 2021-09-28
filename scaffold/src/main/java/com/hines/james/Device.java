@@ -2,11 +2,19 @@ package com.hines.james;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-public class DeviceEventDTO {
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "device_events")
+public class Device {
     @JsonProperty("charging_source")
     private String chargingSource;
     @JsonProperty("processor4_temp")
     private int processor4Temp;
+
+    @Id
     @JsonProperty("device_id")
     private String deviceId;
     @JsonProperty("processor2_temp")

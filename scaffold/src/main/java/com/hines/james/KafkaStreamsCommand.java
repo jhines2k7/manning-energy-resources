@@ -4,10 +4,7 @@ import com.mitchseymour.kafka.serialization.avro.AvroSerdes;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import io.dropwizard.Application;
-import io.dropwizard.Configuration;
-import io.dropwizard.cli.Command;
 import io.dropwizard.cli.ConfiguredCommand;
-import io.dropwizard.cli.EnvironmentCommand;
 import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
 import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.setup.Bootstrap;
@@ -50,7 +47,7 @@ public class KafkaStreamsCommand extends ConfiguredCommand<KafkaEnergyConfigurat
 
         final JdbiFactory factory = new JdbiFactory();
         final Jdbi jdbi = factory.build(environment, kafkaEnergyConfiguration.getDatabaseConfig(), "postgresql");
-        final DeviceEventDao dao = jdbi.onDemand(DeviceEventDao.class);
+        final DeviceDao dao = jdbi.onDemand(DeviceDao.class);
 
         Properties properties = new Properties();
         properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "energy-kafka-streams");
@@ -77,7 +74,11 @@ public class KafkaStreamsCommand extends ConfiguredCommand<KafkaEnergyConfigurat
 
                     System.out.println("Saving charging info to database");
 
-                    dao.addCharging("device_events", key, charging);
+                    Device device = new Device();
+                    device.setDeviceId(key);
+                    device.setCharging(charging);
+
+                    dao.create(device);
                 }).to(sinkTopic, Produced.with(Serdes.String(), Serdes.Integer()));
 
         KafkaStreams energyKafkaStreamsApp = new KafkaStreams(builder.build(), properties);
