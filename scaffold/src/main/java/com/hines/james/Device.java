@@ -5,6 +5,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Objects;
 
 @Entity
 @Table(name = "device_events")
@@ -147,5 +148,18 @@ public class Device {
                 ", processor3Temp=" + processor3Temp +
                 ", soCRegulator=" + soCRegulator +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Device device = (Device) o;
+        return getProcessor4Temp() == device.getProcessor4Temp() && getProcessor2Temp() == device.getProcessor2Temp() && getProcessor1Temp() == device.getProcessor1Temp() && getCharging() == device.getCharging() && getCurrentCapacity() == device.getCurrentCapacity() && getInverterState() == device.getInverterState() && getModuleLTemp() == device.getModuleLTemp() && getModuleRTemp() == device.getModuleRTemp() && getProcessor3Temp() == device.getProcessor3Temp() && Float.compare(device.getSoCRegulator(), getSoCRegulator()) == 0 && getChargingSource().equals(device.getChargingSource()) && getDeviceId().equals(device.getDeviceId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getChargingSource(), getProcessor4Temp(), getDeviceId(), getProcessor2Temp(), getProcessor1Temp(), getCharging(), getCurrentCapacity(), getInverterState(), getModuleLTemp(), getModuleRTemp(), getProcessor3Temp(), getSoCRegulator());
     }
 }

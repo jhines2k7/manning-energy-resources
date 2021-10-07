@@ -8,12 +8,13 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 
 @Path("/")
 public class DeviceEventResource {
-    private final KafkaProducer kafkaProducer;
+    private final KafkaProducer<String, DeviceEvent> kafkaProducer;
     private final DeviceDao dao;
 
     public DeviceEventResource(KafkaProducer<String, DeviceEvent> kafkaProducer, DeviceDao dao) {
@@ -25,11 +26,21 @@ public class DeviceEventResource {
     @Path("charging/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDeviceCharging(@PathParam("uuid") String uuid) {
-        HashMap<String, String> deviceCharging = dao.getChargeState("device_events", uuid);
+        Optional<Device> deviceOptional = dao.findById(uuid);
+
+        Device device;
+
+        try {
+            device = deviceOptional.orElseThrow();
+        } catch (NoSuchElementException ex) {
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .build();
+        }
 
         return Response
                 .status(Response.Status.OK)
-                .entity(deviceCharging)
+                .entity(device)
                 .build();
     }
 

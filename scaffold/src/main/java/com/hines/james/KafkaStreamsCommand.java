@@ -35,7 +35,9 @@ public class KafkaStreamsCommand extends ConfiguredCommand<KafkaEnergyConfigurat
     }
 
     @Override
-    protected void run(Bootstrap<KafkaEnergyConfiguration> bootstrap, Namespace namespace, KafkaEnergyConfiguration kafkaEnergyConfiguration) throws Exception {
+    protected void run(Bootstrap<KafkaEnergyConfiguration> bootstrap,
+                       Namespace namespace,
+                       KafkaEnergyConfiguration kafkaEnergyConfiguration) throws Exception {
         bootstrap.setConfigurationSourceProvider(new ResourceConfigurationSourceProvider());
 
         final Environment environment = new Environment(bootstrap.getApplication().getName(),
@@ -78,7 +80,7 @@ public class KafkaStreamsCommand extends ConfiguredCommand<KafkaEnergyConfigurat
                     device.setDeviceId(key);
                     device.setCharging(charging);
 
-                    dao.create(device);
+                    System.out.println(dao.create(device));
                 }).to(sinkTopic, Produced.with(Serdes.String(), Serdes.Integer()));
 
         KafkaStreams energyKafkaStreamsApp = new KafkaStreams(builder.build(), properties);
