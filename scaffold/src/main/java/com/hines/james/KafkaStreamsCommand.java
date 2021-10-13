@@ -6,6 +6,8 @@ import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import io.dropwizard.Application;
 import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
+import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -40,16 +42,26 @@ public class KafkaStreamsCommand extends ConfiguredCommand<KafkaEnergyConfigurat
                        KafkaEnergyConfiguration kafkaEnergyConfiguration) throws Exception {
         bootstrap.setConfigurationSourceProvider(new ResourceConfigurationSourceProvider());
 
-        final Environment environment = new Environment(bootstrap.getApplication().getName(),
-                bootstrap.getObjectMapper(),
-                bootstrap.getValidatorFactory().getValidator(),
-                bootstrap.getMetricRegistry(),
-                bootstrap.getClassLoader(),
-                bootstrap.getHealthCheckRegistry());
+        HibernateBundle<KafkaEnergyConfiguration> hibernateBundle =
+                new HibernateBundle<>(Device.class) {
+                    @Override
+                    public DataSourceFactory getDataSourceFactory(KafkaEnergyConfiguration kafkaEnergyConfiguration) {
+                        return kafkaEnergyConfiguration.getDatabaseConfig();
+                    }
+                };
 
-        final JdbiFactory factory = new JdbiFactory();
-        final Jdbi jdbi = factory.build(environment, kafkaEnergyConfiguration.getDatabaseConfig(), "postgresql");
-        final DeviceDao dao = jdbi.onDemand(DeviceDao.class);
+        kafkaEnergyConfiguration.getDatabaseConfig().getProperties().put("hibernate.current_session_context_class", "org.hibernate.context.internal.ThreadLocalSessionContext");
+
+        hibernateBundle.run(kafkaEnergyConfiguration,
+                new Environment("EnvName",
+                        bootstrap.getObjectMapper(),
+                        bootstrap.getValidatorFactory().getValidator(),
+                        bootstrap.getMetricRegistry(),
+                        bootstrap.getClassLoader()));
+
+        bootstrap.addBundle(hibernateBundle);
+
+        final DeviceDao dao = new DeviceDao(hibernateBundle.getSessionFactory());
 
         Properties properties = new Properties();
         properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "energy-kafka-streams");

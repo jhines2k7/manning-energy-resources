@@ -1,38 +1,57 @@
 package com.hines.james;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "device_events")
+@Table(name = "device_event")
 public class Device {
+    @JsonInclude()
+    @Transient
     @JsonProperty("charging_source")
     private String chargingSource;
+    @JsonInclude()
+    @Transient
     @JsonProperty("processor4_temp")
     private int processor4Temp;
-
     @Id
     @JsonProperty("device_id")
+    @Column(name = "device_id")
     private String deviceId;
+    @JsonInclude()
+    @Transient
     @JsonProperty("processor2_temp")
     private int processor2Temp;
+    @JsonInclude()
+    @Transient
     @JsonProperty("processor1_temp")
     private int processor1Temp;
     private int charging;
+    @JsonInclude()
+    @Transient
     @JsonProperty("current_capacity")
     private int currentCapacity;
+    @JsonInclude()
+    @Transient
     @JsonProperty("inverter_state")
     private int inverterState;
+    @JsonInclude()
+    @Transient
     @JsonProperty("moduleL_temp")
     private int moduleLTemp;
+    @JsonInclude()
+    @Transient
     @JsonProperty("moduleR_temp")
     private int moduleRTemp;
+    @JsonInclude()
+    @Transient
     @JsonProperty("processor3_temp")
     private int processor3Temp;
+    @JsonInclude()
+    @Transient
     @JsonProperty("SoC_regulator")
     private float soCRegulator;
 

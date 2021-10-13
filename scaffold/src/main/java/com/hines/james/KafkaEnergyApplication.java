@@ -6,13 +6,11 @@ import io.dropwizard.Application;
 import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
-import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.jdbi.v3.core.Jdbi;
 
 import java.util.Properties;
 
@@ -21,7 +19,7 @@ public class KafkaEnergyApplication extends Application<KafkaEnergyConfiguration
     private static KafkaEnergyApplication kafkaEnergyApplication;
 
     private final HibernateBundle<KafkaEnergyConfiguration> hibernateBundle =
-        new HibernateBundle<KafkaEnergyConfiguration>(Device.class) {
+        new HibernateBundle<>(Device.class) {
             @Override
             public DataSourceFactory getDataSourceFactory(KafkaEnergyConfiguration kafkaEnergyConfiguration) {
                 return kafkaEnergyConfiguration.getDatabaseConfig();
