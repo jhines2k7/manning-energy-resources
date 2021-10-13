@@ -1,8 +1,10 @@
 package com.hines.james;
 
 import io.dropwizard.hibernate.AbstractDAO;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.context.internal.ManagedSessionContext;
 
 import java.util.Optional;
 
@@ -16,7 +18,15 @@ public class DeviceDao extends AbstractDAO<Device> {
     }
 
     public Optional<Device> findById(String id) {
-        return Optional.ofNullable(get(id));
+        Session session = factory.openSession();
+
+        ManagedSessionContext.bind(session);
+
+        Optional<Device> device = Optional.ofNullable(get(id));
+
+        session.close();
+
+        return device;
     }
 
     public Device create(Device device) {
